@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html><head>
+  <h3>Jenna Landy, jpl323</h3>
+  
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  
+  </head>
+  <body>
+
+
+    <p id="p1">
+
+      <div id="barcodes"></div>
+
+      <script>
+
+      const requestData = async function() 
+            {
+
+              const movies = await d3.json('/movie_barcodes.json');
+              let barDiv = d3.select("#barcodes");
+              let barcodewidth = 800;
+              let barcodeheight = 100;
+
+              movies.forEach(d=>
+              {
+                const movDiv = barDiv.append("div")
+                const movTxt = movDiv.append("h5").text(d.title)
+                const movCanv = movDiv.append("canvas").attr("width",barcodewidth).attr("height",barcodeheight)
+                
+                const context = movCanv.node().getContext('2d');
+                var imageData = context.getImageData(0, 0, barcodewidth, barcodeheight);
+                let pixels = imageData.data;
+
+                d.bars.forEach(h=>
+                {
+                  let num = parseInt(h.color.replace('#',''), 16);
+                  let r = (num >> 16) & 255;
+                  let g = (num >> 8) & 255;
+                  let b = num & 255;
+
+                  let x = h.x;
+
+                  for (let y = 0; y < 100; y++) { 
+
+                    let loc = 4*(y*barcodewidth + x)
+                    
+                    pixels[loc + 0] = r;
+                    pixels[loc + 1] = g;
+                    pixels[loc + 2] = b;
+                    pixels[loc + 3] = 255;
+    
+
+                  }
+
+                  context.putImageData(imageData, 0, 0);
+
+                })
+
+
+              })
+
+            }
+      requestData();
+
+
+      </script>
+
+
+</p>
